@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   Store,
   Clock,
@@ -7,9 +7,20 @@ import {
   Layers,
   Send,
   CheckCircle2,
+  Paperclip,
+  X,
+  Loader2,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useMedivendStore } from '@/store';
 import { formatRupees } from '@/data/formatters';
+import { PrescriptionAttachment } from '@/data/types';
+import {
+  validatePrescriptionFile,
+  compressAndReadPrescription,
+  formatFileSize,
+} from '@/lib/prescription';
+import { PrescriptionAttachmentView } from '@/components/chat/PrescriptionAttachmentView';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Switch } from '@/components/ui/switch';
@@ -46,6 +57,9 @@ export const ShopDashboardView: React.FC = () => {
   const [selectedShopId, setSelectedShopId] = useState<string>('S1');
   const [activeTab, setActiveTab] = useState<string>('chats');
   const [inputText, setInputText] = useState<string>('');
+  const [pendingPrescription, setPendingPrescription] = useState<PrescriptionAttachment | null>(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const currentShop = shops.find((s) => s.id === selectedShopId) || shops[0];
 
@@ -65,14 +79,41 @@ export const ShopDashboardView: React.FC = () => {
   // Orders for this shop
   const currentShopOrders = shopOrders.filter((o) => o.shopId === currentShop?.id);
 
+  const handleShopFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+
+    const validation = validatePrescriptionFile(file);
+    if (!validation.valid) {
+      toast.error(validation.error || 'Invalid prescription file');
+      return;
+    }
+
+    setIsUploading(true);
+    try {
+      const rx = await compressAndReadPrescription(file);
+      setPendingPrescription(rx);
+      toast.success(`Prescription document attached (${formatFileSize(file.size)})`, {
+        description: 'Send it to the customer via the chat.',
+      });
+    } catch (err) {
+      console.error('Failed to process prescription image:', err);
+      toast.error('Could not process this image.');
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
   const handleSend = (textToSend?: string) => {
     const text = textToSend !== undefined ? textToSend : inputText;
-    if (!text.trim() || !currentShop) return;
+    if ((!text.trim() && !pendingPrescription) || !currentShop) return;
 
-    sendMessage(currentShop.id, 'shop', text);
+    sendMessage(currentShop.id, 'shop', text, pendingPrescription || undefined);
     if (textToSend === undefined) {
       setInputText('');
     }
+    setPendingPrescription(null);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -363,7 +404,13 @@ export const ShopDashboardView: React.FC = () => {
                                 : 'bg-white border border-border text-foreground rounded-tl-xs'
                             }`}
                           >
-                            <p>{msg.text}</p>
+                            {msg.text && <p>{msg.text}</p>}
+                            {msg.prescription && (
+                              <PrescriptionAttachmentView
+                                prescription={msg.prescription}
+                                isSender={isShop}
+                              />
+                            )}
                             <div
                               className={`text-[9px] mt-1 text-right ${
                                 isShop
@@ -395,19 +442,91 @@ export const ShopDashboardView: React.FC = () => {
                     ))}
                   </div>
 
+                  {/* Pending Prescription Attachment Bar (Shop side) */}
+                  {pendingPrescription && (
+                    <div className="px-3.5 py-2 bg-accent/60 border-t border-border flex items-center justify-between gap-3 animate-in fade-in-50 duration-200">
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <div className="h-8 w-8 rounded-lg overflow-hidden bg-background border border-border/80 shrink-0">
+                          <img
+                            src={pendingPrescription.dataUrl}
+                            alt="Prescription preview"
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-bold text-primary uppercase tracking-wider bg-primary/10 px-1.5 py-0.5 rounded">
+                              Document Attached
+                            </span>
+                            <span className="text-xs font-semibold text-foreground truncate max-w-[180px] sm:max-w-xs">
+                              {pendingPrescription.fileName}
+                            </span>
+                          </div>
+                          <span className="text-[11px] text-muted-foreground">
+                            {formatFileSize(pendingPrescription.fileSize)}
+                          </span>
+                        </div>
+                      </div>
+
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => setPendingPrescription(null)}
+                        className="h-7 w-7 text-muted-foreground hover:text-destructive shrink-0"
+                        title="Remove attachment"
+                      >
+                        <X className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  )}
+
                   {/* Shop Input plus Send */}
                   <div className="p-3 border-t border-border bg-white flex items-center gap-2">
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={handleShopFileSelect}
+                    />
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={isUploading}
+                      className={`h-10 text-xs font-semibold gap-1.5 shrink-0 transition-all ${
+                        pendingPrescription
+                          ? 'border-primary text-primary bg-primary/5'
+                          : 'border-border text-foreground hover:bg-secondary'
+                      }`}
+                      title="Add prescription or document photo (Max 5MB)"
+                    >
+                      {isUploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                      ) : (
+                        <Paperclip className="h-4 w-4 text-primary" />
+                      )}
+                      <span className="hidden sm:inline">Add Rx</span>
+                    </Button>
+
                     <Input
                       type="text"
-                      placeholder={`Reply as ${currentShop.name}...`}
+                      placeholder={
+                        pendingPrescription
+                          ? 'Add a message with this attachment...'
+                          : `Reply as ${currentShop.name}...`
+                      }
                       value={inputText}
                       onChange={(e) => setInputText(e.target.value)}
                       onKeyDown={handleKeyDown}
                       className="flex-1 h-10 text-xs bg-white border-border focus-visible:ring-primary"
                     />
+
                     <Button
                       onClick={() => handleSend()}
-                      disabled={!inputText.trim()}
+                      disabled={(!inputText.trim() && !pendingPrescription) || isUploading}
                       size="icon"
                       className="h-10 w-10 shrink-0 font-semibold"
                       aria-label="Send reply"

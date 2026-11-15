@@ -5,8 +5,10 @@ import {
   MachineOrder,
   MachineOrderItem,
   Medicine,
+  PrescriptionAttachment,
   Shop,
   ShopConversation,
+  ShopConversationMessage,
   ShopOrder,
   ShopOrderStatus,
 } from '../data/types';
@@ -315,19 +317,25 @@ export const store = {
     return conv;
   },
 
-  sendMessage(shopId: string, sender: 'customer' | 'shop' | 'system', text: string) {
+  sendMessage(
+    shopId: string,
+    sender: 'customer' | 'shop' | 'system',
+    text: string,
+    prescription?: PrescriptionAttachment
+  ) {
     const trimmed = text.trim();
-    if (!trimmed) return;
+    if (!trimmed && !prescription) return;
 
     setState((prev) => {
       let conversations = [...prev.shopConversations];
       let convIndex = conversations.findIndex((c) => c.shopId === shopId);
 
-      const newMessage = {
+      const newMessage: ShopConversationMessage = {
         id: `msg-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
         sender,
-        text: trimmed,
+        text: trimmed || (prescription ? 'Prescription attached' : ''),
         timestamp: formatCurrentTime(),
+        prescription,
       };
 
       if (convIndex === -1) {

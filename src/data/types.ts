@@ -47,11 +47,20 @@ export interface MachineOrder {
   status: 'dispensing' | 'completed' | 'cancelled';
 }
 
+export interface PrescriptionAttachment {
+  id: string;
+  fileName: string;
+  fileSize: number; // in bytes
+  dataUrl: string; // base64 encoded image data url
+  uploadedAt: string;
+}
+
 export interface ShopConversationMessage {
   id: string;
   sender: 'customer' | 'shop' | 'system';
   text: string;
   timestamp: string;
+  prescription?: PrescriptionAttachment;
 }
 
 export interface ShopConversation {
