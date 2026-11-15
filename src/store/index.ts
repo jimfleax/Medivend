@@ -4,6 +4,8 @@ import {
   CartItem,
   MachineOrder,
   MachineOrderItem,
+  Medicine,
+  Shop,
   ShopConversation,
   ShopOrder,
   ShopOrderStatus,
@@ -26,10 +28,44 @@ function loadInitialState(): AppState {
     }
     const parsed = JSON.parse(raw);
     if (parsed && Array.isArray(parsed.medicines) && parsed.vendingMachine) {
-      return {
+      // Reconcile medicines: preserve live stock/changes for existing items,
+      // and ensure all newly added inventory items from INITIAL_STATE are present.
+      const existingMedMap = new Map<number, Medicine>(
+        (parsed.medicines as Medicine[]).map((m) => [m.id, m])
+      );
+      const reconciledMedicines = INITIAL_STATE.medicines.map((seedMed) => {
+        const existing = existingMedMap.get(seedMed.id);
+        return existing
+          ? { ...seedMed, machineStock: existing.machineStock ?? seedMed.machineStock }
+          : seedMed;
+      });
+
+      // Reconcile shops: preserve custom shop open status and merge stock lists
+      const existingShopMap = new Map<string, Shop>(
+        ((parsed.shops || []) as Shop[]).map((s) => [s.id, s])
+      );
+      const reconciledShops = INITIAL_STATE.shops.map((seedShop) => {
+        const existing = existingShopMap.get(seedShop.id);
+        if (!existing) return seedShop;
+        const combinedStocks = Array.from(
+          new Set([...(seedShop.stocks || []), ...(existing.stocks || [])])
+        );
+        return {
+          ...seedShop,
+          ...existing,
+          stocks: combinedStocks,
+        };
+      });
+
+      const mergedState: AppState = {
         ...INITIAL_STATE,
         ...parsed,
+        medicines: reconciledMedicines,
+        shops: reconciledShops,
       };
+
+      saveToStorage(mergedState);
+      return mergedState;
     }
   } catch (err) {
     console.error('Failed to load state from localStorage:', err);
