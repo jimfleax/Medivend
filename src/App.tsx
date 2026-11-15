@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
 import { CustomerHome } from './views/customer/CustomerHome';
 import { CheckoutView } from './views/customer/CheckoutView';
@@ -11,7 +11,7 @@ import { ShopDashboardView } from './views/shop/ShopDashboardView';
 
 export const App: React.FC = () => {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Layout />}>
           {/* Default redirect to /customer */}
@@ -34,7 +34,7 @@ export const App: React.FC = () => {
           <Route path="*" element={<Navigate to="/customer" replace />} />
         </Route>
       </Routes>
-    </HashRouter>
+    </BrowserRouter>
   );
 };
 
