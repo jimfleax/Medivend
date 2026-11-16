@@ -2042,7 +2042,7 @@ export const SEED_MEDICINES: Medicine[] = [
 export const SEED_VENDING_MACHINE: VendingMachine = {
   id: 'VM-01',
   name: 'MediVend Station 01',
-  location: 'Central Metro Station, Gate 2',
+  location: 'IIM Sambalpur Health Centre',
   status: 'Online',
   lastSynced: 'Just now',
 };
