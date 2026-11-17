@@ -27,6 +27,7 @@ export const CartSheet: React.FC<CartSheetProps> = () => {
   const {
     cart,
     medicines,
+    vendingMachine,
     updateCartQuantity,
     removeFromCart,
   } = useMedivendStore();
@@ -87,7 +88,7 @@ export const CartSheet: React.FC<CartSheetProps> = () => {
             </Badge>
           </div>
           <SheetDescription className="text-xs text-muted-foreground">
-            Items to be dispensed directly from MediVend Station 01
+            Items to be dispensed directly from {vendingMachine.name} ({vendingMachine.location})
           </SheetDescription>
         </SheetHeader>
 

@@ -49,6 +49,7 @@ export const ShopDashboardView: React.FC = () => {
     shopConversations,
     shopOrders,
     sendMessage,
+    verifyPrescriptionAndCreateOrder,
     updateShopOrderStatus,
     toggleShopOpen,
     toggleShopMedicineStock,
@@ -121,6 +122,20 @@ export const ShopDashboardView: React.FC = () => {
       e.preventDefault();
       handleSend();
     }
+  };
+
+  const handlePharmacistApprove = (prescription: PrescriptionAttachment) => {
+    // Look up target medicine from conversation or default to Azithromycin (ID 9)
+    const medId = activeConv?.medicineId || 9;
+    const med = medicines.find((m) => m.id === medId);
+    const created = verifyPrescriptionAndCreateOrder(currentShop.id, medId, 1, prescription.id);
+    toast.success(`Prescription approved! Pickup Ticket ${created.id} created for ${med?.name || 'medication'}.`);
+  };
+
+  const handleRequestClearerPhoto = () => {
+    handleSend(
+      'Pharmacist Note: The uploaded prescription photo is slightly illegible. Please upload a clear photo displaying the doctor signature, clinic header, and Rx dosage.'
+    );
   };
 
   if (!currentShop) return null;
@@ -398,18 +413,44 @@ export const ShopDashboardView: React.FC = () => {
                             {isShop ? `${currentShop.name} (You)` : 'Customer'}
                           </span>
                           <div
-                            className={`max-w-[75%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed shadow-xs ${
+                            className={`max-w-[85%] sm:max-w-[75%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed shadow-xs ${
+                              msg.prescription ? 'min-w-[240px] sm:min-w-[280px]' : ''
+                            } ${
                               isShop
                                 ? 'bg-primary text-primary-foreground rounded-tr-xs'
                                 : 'bg-white border border-border text-foreground rounded-tl-xs'
                             }`}
                           >
-                            {msg.text && <p>{msg.text}</p>}
+                            {msg.text && <p className="break-words">{msg.text}</p>}
                             {msg.prescription && (
-                              <PrescriptionAttachmentView
-                                prescription={msg.prescription}
-                                isSender={isShop}
-                              />
+                              <>
+                                <PrescriptionAttachmentView
+                                  prescription={msg.prescription}
+                                  isSender={isShop}
+                                />
+                                {!isShop && (
+                                  <div className="mt-2.5 pt-2 border-t border-border/80 flex flex-wrap items-center gap-1.5">
+                                    <Button
+                                      type="button"
+                                      size="sm"
+                                      onClick={() => handlePharmacistApprove(msg.prescription!)}
+                                      className="h-7 px-2.5 text-[11px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white gap-1 shadow-2xs"
+                                    >
+                                      <CheckCircle2 className="h-3.5 w-3.5" />
+                                      Approve & Create Pickup Order
+                                    </Button>
+                                    <Button
+                                      type="button"
+                                      variant="outline"
+                                      size="sm"
+                                      onClick={handleRequestClearerPhoto}
+                                      className="h-7 px-2 text-[11px] font-medium border-border text-muted-foreground hover:text-foreground"
+                                    >
+                                      Request Clearer Photo
+                                    </Button>
+                                  </div>
+                                )}
+                              </>
                             )}
                             <div
                               className={`text-[9px] mt-1 text-right ${

@@ -1,13 +1,17 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useParams } from 'react-router-dom';
 import { Layout } from './components/layout/Layout';
-import { CustomerHome } from './views/customer/CustomerHome';
+import { CustomerVendingView } from './views/customer/CustomerVendingView';
+import { CustomerShopsView } from './views/customer/CustomerShopsView';
 import { CheckoutView } from './views/customer/CheckoutView';
 import { DispenseView } from './views/customer/DispenseView';
-import { CustomerShopsView } from './views/customer/CustomerShopsView';
-import { CustomerChatsListView } from './views/customer/CustomerChatsListView';
-import { CustomerChatView } from './views/customer/CustomerChatView';
+import { CustomerOrdersView } from './views/customer/CustomerOrdersView';
 import { ShopDashboardView } from './views/shop/ShopDashboardView';
+
+const LegacyShopChatRedirect: React.FC = () => {
+  const { shopId } = useParams<{ shopId: string }>();
+  return <Navigate to={`/customer/shops?shop=${shopId || 'S1'}&chat=open`} replace />;
+};
 
 export const App: React.FC = () => {
   return (
@@ -19,12 +23,15 @@ export const App: React.FC = () => {
 
           {/* Customer Routes */}
           <Route path="customer">
-            <Route index element={<CustomerHome />} />
+            {/* Dashboard shows the Vending Machine view by default */}
+            <Route index element={<CustomerVendingView />} />
+            <Route path="vending" element={<Navigate to="/customer" replace />} />
+            <Route path="shops" element={<CustomerShopsView />} />
+            <Route path="orders" element={<CustomerOrdersView />} />
             <Route path="checkout" element={<CheckoutView />} />
             <Route path="dispense/:orderId" element={<DispenseView />} />
-            <Route path="shops" element={<CustomerShopsView />} />
-            <Route path="chats" element={<CustomerChatsListView />} />
-            <Route path="chat/:shopId" element={<CustomerChatView />} />
+            <Route path="chats" element={<Navigate to="/customer/shops?chat=open" replace />} />
+            <Route path="chat/:shopId" element={<LegacyShopChatRedirect />} />
           </Route>
 
           {/* Shop Routes */}

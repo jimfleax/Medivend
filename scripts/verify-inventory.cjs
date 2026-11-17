@@ -4,16 +4,22 @@ const path = require('path');
 
 console.log('=== MEDIVEND INVENTORY VERIFICATION ===');
 
-const seedPath = path.resolve(__dirname, '../src/data/seed.ts');
-const fileContent = fs.readFileSync(seedPath, 'utf8');
+const medicinesPath = path.resolve(__dirname, '../src/data/medicines.json');
+let medicines;
 
-const match = fileContent.match(/export const SEED_MEDICINES: Medicine\[\] = (\[[\s\S]*?\]);/);
-if (!match) {
-  console.error('FAIL: Could not locate SEED_MEDICINES in src/data/seed.ts');
-  process.exit(1);
+if (fs.existsSync(medicinesPath)) {
+  medicines = JSON.parse(fs.readFileSync(medicinesPath, 'utf8'));
+} else {
+  const seedPath = path.resolve(__dirname, '../src/data/seed.ts');
+  const fileContent = fs.readFileSync(seedPath, 'utf8');
+  const match = fileContent.match(/export const SEED_MEDICINES: Medicine\[\] = (\[[\s\S]*?\]);/);
+  if (!match) {
+    console.error('FAIL: Could not locate SEED_MEDICINES in src/data/seed.ts');
+    process.exit(1);
+  }
+  medicines = eval(match[1]);
 }
 
-const medicines = eval(match[1]);
 console.log(`Found ${medicines.length} medicines in inventory.`);
 
 const idSet = new Set();
@@ -75,11 +81,22 @@ medicines.forEach((med, idx) => {
 });
 
 // Verify shop stocks
-const shopMatch = fileContent.match(/export const SEED_SHOPS: Shop\[\] = (\[[\s\S]*?\]);/);
-if (!shopMatch) {
-  logError('Could not find SEED_SHOPS in seed.ts');
+const shopsPath = path.resolve(__dirname, '../src/data/shops.json');
+let shops;
+if (fs.existsSync(shopsPath)) {
+  shops = JSON.parse(fs.readFileSync(shopsPath, 'utf8'));
 } else {
-  const shops = eval(shopMatch[1]);
+  const seedPath = path.resolve(__dirname, '../src/data/seed.ts');
+  const fileContent = fs.readFileSync(seedPath, 'utf8');
+  const shopMatch = fileContent.match(/export const SEED_SHOPS: Shop\[\] = (\[[\s\S]*?\]);/);
+  if (shopMatch) {
+    shops = eval(shopMatch[1]);
+  }
+}
+
+if (!shops) {
+  logError('Could not find SEED_SHOPS or shops.json');
+} else {
   shops.forEach((shop) => {
     if (!Array.isArray(shop.stocks)) {
       logError(`Shop ${shop.id} has invalid stocks array`);
@@ -92,10 +109,27 @@ if (!shopMatch) {
     }
   });
 
-  const s3 = shops.find((s) => s.id === 'S3');
-  if (s3 && s3.stocks.includes(3)) {
-    logError('Shop S3 (Wellness Corner) incorrectly stocks Cetirizine (ID 3)');
+  // Verify partner shops
+  if (shops.length !== 3) {
+    logError(`Expected exactly 3 partner shops, found ${shops.length}`);
   }
+}
+
+// Verify vending machines
+const vmPath = path.resolve(__dirname, '../src/data/vending-machines.json');
+if (fs.existsSync(vmPath)) {
+  const vms = JSON.parse(fs.readFileSync(vmPath, 'utf8'));
+  if (vms.length !== 3) {
+    logError(`Expected exactly 3 vending machines, found ${vms.length}`);
+  }
+  vms.forEach((vm) => {
+    if (!vm.location.includes('IIM Sambalpur Health Centre')) {
+      logError(`Vending machine ${vm.id} location "${vm.location}" is not at IIM Sambalpur Health Centre`);
+    }
+    if (!vm.name.includes('SN:')) {
+      logError(`Vending machine ${vm.id} name "${vm.name}" missing serial number`);
+    }
+  });
 }
 
 console.log(`Verified ${categories.size} categories with 0 duplicates:`);

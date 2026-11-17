@@ -18,7 +18,7 @@ import { Separator } from '@/components/ui/separator';
 
 export const CheckoutView: React.FC = () => {
   const navigate = useNavigate();
-  const { cart, medicines, createMachineOrder } = useMedivendStore();
+  const { cart, medicines, createMachineOrder, vendingMachine } = useMedivendStore();
 
   const [paymentMethod, setPaymentMethod] = useState<'UPI' | 'Card'>('UPI');
   const [upiId, setUpiId] = useState('user@upi');
@@ -78,7 +78,7 @@ export const CheckoutView: React.FC = () => {
         <Button asChild className="gap-2">
           <Link to="/customer">
             <ArrowLeft className="h-4 w-4" />
-            Back to machine catalog
+            Back to vending catalog
           </Link>
         </Button>
       </div>
@@ -97,7 +97,7 @@ export const CheckoutView: React.FC = () => {
         >
           <Link to="/customer">
             <ArrowLeft className="h-4 w-4" />
-            Back to medicine list
+            Back to vending catalog
           </Link>
         </Button>
       </div>
@@ -112,8 +112,8 @@ export const CheckoutView: React.FC = () => {
                   <Lock className="h-4 w-4 text-primary" />
                   Payment Method
                 </CardTitle>
-                <span className="text-[11px] font-medium bg-emerald-50 text-emerald-700 px-2 py-0.5 rounded-full border border-emerald-200">
-                  Instant Dispense
+                <span className="text-[11px] font-medium bg-primary/10 text-primary px-2.5 py-0.5 rounded-full border border-primary/20">
+                  {vendingMachine.name}
                 </span>
               </div>
             </CardHeader>

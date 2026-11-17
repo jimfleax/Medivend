@@ -1,0 +1,23 @@
+[
+  {
+    "id": "VM-01",
+    "name": "MediVend Dispenser Unit 01 (SN: MV-IIM-001)",
+    "location": "IIM Sambalpur Health Centre",
+    "status": "Online",
+    "lastSynced": "Just now"
+  },
+  {
+    "id": "VM-02",
+    "name": "MediVend Dispenser Unit 02 (SN: MV-IIM-002)",
+    "location": "IIM Sambalpur Health Centre",
+    "status": "Online",
+    "lastSynced": "2 mins ago"
+  },
+  {
+    "id": "VM-03",
+    "name": "MediVend Dispenser Unit 03 (SN: MV-IIM-003)",
+    "location": "IIM Sambalpur Health Centre",
+    "status": "Online",
+    "lastSynced": "4 mins ago"
+  }
+]

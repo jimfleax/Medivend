@@ -1,0 +1,40 @@
+[
+  {
+    "id": "conv-S1",
+    "shopId": "S1",
+    "medicineId": 3,
+    "messages": [
+      {
+        "id": "msg-s1-1",
+        "sender": "customer",
+        "text": "Hi, do you have Cetirizine 10mg in stock?",
+        "timestamp": "10:30 AM"
+      },
+      {
+        "id": "msg-s1-2",
+        "sender": "shop",
+        "text": "Yes, we have Cetirizine 10mg strips available at Samaleswari Medical Store. You can reserve them for pickup or upload your prescription.",
+        "timestamp": "10:32 AM"
+      }
+    ]
+  },
+  {
+    "id": "conv-S3",
+    "shopId": "S3",
+    "medicineId": 9,
+    "messages": [
+      {
+        "id": "msg-s3-1",
+        "sender": "customer",
+        "text": "Hello, do you dispense Azithromycin 500mg with doctor prescription?",
+        "timestamp": "11:15 AM"
+      },
+      {
+        "id": "msg-s3-2",
+        "sender": "shop",
+        "text": "Namaskar! Yes, we have Azithromycin 500mg in stock at Jagannath Medical Store, Gosala Chowk. Please upload a clear photo of your prescription and we will prepare it for counter pickup.",
+        "timestamp": "11:18 AM"
+      }
+    ]
+  }
+]

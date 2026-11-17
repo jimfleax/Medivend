@@ -22,7 +22,7 @@ export const Footer: React.FC = () => {
             MediVend Prototype · Front-End Offline Demonstration
           </p>
           <p className="text-xs text-muted-foreground">
-            All state persisted locally in browser localStorage. No external server dependencies.
+            Dynamic state persisted locally in browser localStorage. Static catalog & station specs protected in-memory.
           </p>
         </div>
 

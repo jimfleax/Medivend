@@ -306,13 +306,15 @@ export const CustomerChatView: React.FC = () => {
                 {isCustomer ? 'You' : shop.name}
               </span>
               <div
-                className={`max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed shadow-xs ${
+                className={`max-w-[85%] sm:max-w-[78%] rounded-2xl px-3.5 py-2 text-xs leading-relaxed shadow-xs ${
+                  msg.prescription ? 'min-w-[240px] sm:min-w-[280px]' : ''
+                } ${
                   isCustomer
                     ? 'bg-primary text-primary-foreground rounded-tr-xs'
                     : 'bg-white border border-border text-foreground rounded-tl-xs'
                 }`}
               >
-                {msg.text && <p>{msg.text}</p>}
+                {msg.text && <p className="break-words">{msg.text}</p>}
                 {msg.prescription && (
                   <PrescriptionAttachmentView
                     prescription={msg.prescription}

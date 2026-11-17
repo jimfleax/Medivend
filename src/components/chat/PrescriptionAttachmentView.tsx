@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { FileText, Eye, Download, ZoomIn, CheckCircle } from 'lucide-react';
 import { PrescriptionAttachment } from '@/data/types';
 import { formatFileSize } from '@/lib/prescription';
+import { cn } from '@/lib/utils';
 import {
   Dialog,
   DialogContent,
@@ -34,29 +35,32 @@ export const PrescriptionAttachmentView: React.FC<PrescriptionAttachmentViewProp
   return (
     <>
       <div
-        className={`mt-2 rounded-xl border p-2 text-left transition-all overflow-hidden ${
+        className={cn(
+          'mt-2 rounded-xl border p-2 text-left transition-all overflow-hidden w-full min-w-[220px] max-w-[320px]',
           isSender
-            ? 'bg-primary-foreground/10 border-primary-foreground/20 text-primary-foreground'
-            : 'bg-secondary/40 border-border text-foreground'
-        }`}
+            ? 'bg-black/20 border-white/20 text-white'
+            : 'bg-slate-50 border-border text-foreground'
+        )}
       >
         {/* Header bar */}
-        <div className="flex items-center justify-between gap-2 mb-1.5 px-0.5">
+        <div className="flex items-center justify-between gap-2 mb-2 px-0.5">
           <Badge
             variant="outline"
-            className={`text-[10px] font-semibold gap-1 px-2 py-0.5 ${
+            className={cn(
+              'text-[10px] font-semibold gap-1 px-2 py-0.5 shadow-2xs',
               isSender
-                ? 'bg-primary-foreground/20 border-primary-foreground/30 text-primary-foreground'
+                ? 'bg-white/20 text-white border-white/30'
                 : 'bg-emerald-50 text-emerald-700 border-emerald-200'
-            }`}
+            )}
           >
             <FileText className="h-3 w-3" />
             Rx Prescription
           </Badge>
           <span
-            className={`text-[10px] ${
-              isSender ? 'text-primary-foreground/80' : 'text-muted-foreground'
-            }`}
+            className={cn(
+              'text-[10px] font-medium',
+              isSender ? 'text-white/80' : 'text-muted-foreground'
+            )}
           >
             {formatFileSize(prescription.fileSize)}
           </span>
@@ -65,15 +69,20 @@ export const PrescriptionAttachmentView: React.FC<PrescriptionAttachmentViewProp
         {/* Thumbnail Preview with Click-to-Zoom */}
         <div
           onClick={() => setIsOpen(true)}
-          className="relative group cursor-pointer overflow-hidden rounded-lg bg-black/5 border border-black/10 aspect-video max-h-48 w-full flex items-center justify-center"
+          className={cn(
+            'relative group cursor-pointer overflow-hidden rounded-lg h-36 sm:h-40 w-full flex items-center justify-center transition-all',
+            isSender
+              ? 'bg-black/35 border border-white/15'
+              : 'bg-white border border-border/80'
+          )}
         >
           <img
             src={prescription.dataUrl}
             alt={prescription.fileName || 'Prescription Image'}
-            className="w-full h-full object-cover transition-transform duration-200 group-hover:scale-105"
+            className="w-full h-full object-contain p-1 transition-transform duration-200 group-hover:scale-102 select-none"
             loading="lazy"
           />
-          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-xs font-semibold">
+          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5 text-white text-xs font-semibold backdrop-blur-[1px]">
             <ZoomIn className="h-4 w-4" />
             <span>Click to expand</span>
           </div>
@@ -81,17 +90,21 @@ export const PrescriptionAttachmentView: React.FC<PrescriptionAttachmentViewProp
 
         {/* File name & quick action */}
         <div className="flex items-center justify-between gap-2 mt-2 px-0.5 text-[11px]">
-          <span className="truncate max-w-[180px] font-medium" title={prescription.fileName}>
+          <span
+            className="truncate max-w-[160px] font-medium"
+            title={prescription.fileName}
+          >
             {prescription.fileName}
           </span>
           <button
             type="button"
             onClick={() => setIsOpen(true)}
-            className={`flex items-center gap-1 font-semibold hover:underline shrink-0 ${
-              isSender ? 'text-primary-foreground' : 'text-primary'
-            }`}
+            className={cn(
+              'flex items-center gap-1 font-semibold hover:underline shrink-0 text-xs',
+              isSender ? 'text-white' : 'text-primary'
+            )}
           >
-            <Eye className="h-3 w-3" />
+            <Eye className="h-3.5 w-3.5" />
             View Full
           </button>
         </div>

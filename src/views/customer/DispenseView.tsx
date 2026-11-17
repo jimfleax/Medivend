@@ -6,7 +6,13 @@ import {
   ArrowRight,
   Pill,
   ShieldAlert,
+  KeyRound,
+  QrCode,
+  Copy,
+  Receipt,
+  MapPin,
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { useMedivendStore } from '@/store';
 import { formatRupees } from '@/data/formatters';
 import { Card, CardContent } from '@/components/ui/card';
@@ -17,9 +23,11 @@ import { Badge } from '@/components/ui/badge';
 export const DispenseView: React.FC = () => {
   const { orderId } = useParams<{ orderId: string }>();
   const navigate = useNavigate();
-  const { machineOrders, completeDispense, vendingMachine } = useMedivendStore();
+  const { machineOrders, completeDispense, vendingMachine, vendingMachines } = useMedivendStore();
 
   const targetOrder = machineOrders.find((o) => o.id === orderId);
+  const assignedMachine =
+    vendingMachines.find((vm) => vm.id === targetOrder?.machineId) || vendingMachine;
 
   // If order was already completed before mounting
   const isAlreadyCompleted = targetOrder?.status === 'completed';
@@ -55,6 +63,13 @@ export const DispenseView: React.FC = () => {
     return () => clearInterval(timer);
   }, [targetOrder, isAlreadyCompleted, completeDispense]);
 
+  const handleCopyPin = () => {
+    if (targetOrder?.dispensePin) {
+      navigator.clipboard.writeText(targetOrder.dispensePin);
+      toast.success('Dispense PIN copied to clipboard');
+    }
+  };
+
   if (!targetOrder) {
     return (
       <div className="max-w-md mx-auto py-16 text-center space-y-4">
@@ -72,9 +87,11 @@ export const DispenseView: React.FC = () => {
     );
   }
 
+  const dispensePin = targetOrder.dispensePin || '7492';
+
   return (
     <div className="max-w-lg mx-auto py-4 sm:py-8 space-y-6">
-      <Card className="border-border bg-white shadow-sm overflow-hidden">
+      <Card className="border-border bg-white shadow-sm overflow-hidden rounded-2xl">
         {/* Animated accent banner */}
         <div className="h-1.5 w-full bg-primary/20 overflow-hidden">
           <div
@@ -98,9 +115,13 @@ export const DispenseView: React.FC = () => {
                 <h2 className="text-xl font-bold text-foreground tracking-tight">
                   Dispensing your medicine...
                 </h2>
-                <p className="text-xs text-muted-foreground max-w-xs mx-auto">
-                  Mechanical tray active at {vendingMachine.name}. Please wait while unit channels release your package.
+                <p className="text-xs text-muted-foreground max-w-sm mx-auto">
+                  Mechanical tray active at <strong className="text-foreground">{assignedMachine.name}</strong>. Please wait while unit channels release your package.
                 </p>
+                <div className="flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+                  <MapPin className="h-3 w-3 text-primary" />
+                  <span>{assignedMachine.location}</span>
+                </div>
               </div>
 
               <div className="space-y-2 max-w-xs mx-auto">
@@ -132,16 +153,59 @@ export const DispenseView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Order Code Card */}
-              <div className="p-4 rounded-xl border border-primary/20 bg-accent/40 text-center space-y-1">
-                <span className="text-[11px] uppercase tracking-wider font-semibold text-muted-foreground">
-                  Dispense Order Code
-                </span>
-                <div className="text-2xl sm:text-3xl font-mono font-extrabold text-primary tracking-wider select-all">
-                  {targetOrder.id}
+              {/* Kiosk Dispense Credentials Card (PIN & QR) */}
+              <div className="p-4 rounded-2xl border-2 border-primary/30 bg-primary/5 space-y-4">
+                <div className="flex items-center justify-between border-b border-primary/15 pb-2.5">
+                  <div className="space-y-0.5 text-left">
+                    <span className="text-[10px] uppercase font-bold text-primary tracking-wider">
+                      Dispensing Kiosk
+                    </span>
+                    <p className="text-xs font-bold text-foreground">
+                      {assignedMachine.name}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <MapPin className="h-2.5 w-2.5 text-primary" />
+                      {assignedMachine.location}
+                    </p>
+                  </div>
+
+                  <Badge variant="outline" className="bg-white border-primary/30 text-primary text-[10px] font-mono font-bold">
+                    {targetOrder.id}
+                  </Badge>
                 </div>
-                <div className="text-[11px] text-muted-foreground">
-                  Paid via {targetOrder.paymentMethod} · {formatRupees(targetOrder.totalAmount)}
+
+                {/* PIN and Simulated QR Code */}
+                <div className="grid grid-cols-2 gap-3 items-center">
+                  {/* Dispense PIN */}
+                  <div className="bg-white p-3 rounded-xl border border-primary/20 text-center space-y-1 shadow-2xs">
+                    <span className="text-[10px] font-semibold text-muted-foreground flex items-center justify-center gap-1">
+                      <KeyRound className="h-3 w-3 text-primary" /> Kiosk PIN
+                    </span>
+                    <div className="text-2xl sm:text-3xl font-mono font-extrabold text-primary tracking-widest">
+                      {dispensePin}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={handleCopyPin}
+                      className="text-[10px] text-muted-foreground hover:text-primary font-medium flex items-center justify-center gap-1 mx-auto"
+                    >
+                      <Copy className="h-2.5 w-2.5" /> Copy PIN
+                    </button>
+                  </div>
+
+                  {/* Simulated QR Token */}
+                  <div className="bg-white p-2.5 rounded-xl border border-primary/20 flex flex-col items-center justify-center text-center space-y-1 shadow-2xs">
+                    <div className="h-16 w-16 bg-slate-900 rounded-lg p-1.5 flex items-center justify-center text-white">
+                      <QrCode className="h-12 w-12 text-white stroke-[1.75]" />
+                    </div>
+                    <span className="text-[9px] text-muted-foreground font-mono">
+                      Scan at Kiosk Reader
+                    </span>
+                  </div>
+                </div>
+
+                <div className="text-[11px] text-center text-muted-foreground pt-1">
+                  Paid via {targetOrder.paymentMethod} · <strong>{formatRupees(targetOrder.totalAmount)}</strong>
                 </div>
               </div>
 
@@ -175,14 +239,25 @@ export const DispenseView: React.FC = () => {
                 </div>
               </div>
 
-              {/* Back to Home Button */}
-              <Button
-                onClick={() => navigate('/customer')}
-                className="w-full h-11 font-bold text-sm shadow-sm gap-2"
-              >
-                Back to home
-                <ArrowRight className="h-4 w-4" />
-              </Button>
+              {/* Action Buttons */}
+              <div className="space-y-2 pt-2">
+                <Button
+                  onClick={() => navigate('/customer/orders')}
+                  variant="outline"
+                  className="w-full h-10 font-semibold text-xs border-primary/30 text-primary hover:bg-primary/5 gap-2"
+                >
+                  <Receipt className="h-4 w-4" />
+                  View in My Orders & Receipts
+                </Button>
+
+                <Button
+                  onClick={() => navigate('/customer')}
+                  className="w-full h-11 font-bold text-sm shadow-sm gap-2 bg-primary text-white hover:bg-primary/90"
+                >
+                  Back to vending catalog
+                  <ArrowRight className="h-4 w-4" />
+                </Button>
+              </div>
             </div>
           )}
         </CardContent>

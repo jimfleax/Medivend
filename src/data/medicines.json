@@ -1,0 +1,162 @@
+[
+  {
+    "id": 1,
+    "name": "Paracetamol 500mg (Fever & Pain Relief - 10 Tablets)",
+    "price": 25,
+    "category": "Pain and fever",
+    "otc": true,
+    "machineStock": 15
+  },
+  {
+    "id": 2,
+    "name": "Ibuprofen 400mg (Pain, Fever & Anti-Inflammatory - 10 Tablets)",
+    "price": 38,
+    "category": "Pain and fever",
+    "otc": true,
+    "machineStock": 12
+  },
+  {
+    "id": 3,
+    "name": "Cetirizine 10mg (Allergy & Antihistamine - 10 Tablets)",
+    "price": 22,
+    "category": "Allergy and cold",
+    "otc": true,
+    "machineStock": 18
+  },
+  {
+    "id": 4,
+    "name": "ORS Sachet 21.8g (WHO Formula Oral Rehydration Salts)",
+    "price": 22,
+    "category": "Hydration and digestion",
+    "otc": true,
+    "machineStock": 25
+  },
+  {
+    "id": 5,
+    "name": "Adhesive Bandages Waterproof (Pack of 10 Strips)",
+    "price": 40,
+    "category": "First aid",
+    "otc": true,
+    "machineStock": 20
+  },
+  {
+    "id": 6,
+    "name": "Antiseptic Liquid 100ml (Chlorhexidine & Cetrimide)",
+    "price": 55,
+    "category": "First aid",
+    "otc": true,
+    "machineStock": 10
+  },
+  {
+    "id": 7,
+    "name": "Digital Clinical Thermometer (Oral & Axillary)",
+    "price": 180,
+    "category": "First aid",
+    "otc": true,
+    "machineStock": 8
+  },
+  {
+    "id": 8,
+    "name": "Multivitamin with Zinc & B-Complex (Strip of 15 Tablets)",
+    "price": 95,
+    "category": "Vitamins and supplements",
+    "otc": true,
+    "machineStock": 15
+  },
+  {
+    "id": 9,
+    "name": "Azithromycin 500mg (Antibiotic - 3 Tablets, Prescription Only)",
+    "price": 72,
+    "category": "Antibiotic",
+    "otc": false,
+    "machineStock": 0
+  },
+  {
+    "id": 10,
+    "name": "Pantoprazole 40mg (Gastro-Resistant - 10 Tablets, Prescription Only)",
+    "price": 85,
+    "category": "Digestion and acidity",
+    "otc": false,
+    "machineStock": 0
+  },
+  {
+    "id": 11,
+    "name": "Montelukast 10mg (Asthma & Allergy - 10 Tablets, Prescription Only)",
+    "price": 115,
+    "category": "Respiratory",
+    "otc": false,
+    "machineStock": 0
+  },
+  {
+    "id": 12,
+    "name": "Salbutamol Inhaler 100mcg (200 Metered Doses, Prescription Required)",
+    "price": 160,
+    "category": "Respiratory",
+    "otc": false,
+    "machineStock": 0
+  },
+  {
+    "id": 13,
+    "name": "Chewable Antacid Tablets (Heartburn & Gas Relief - 10 Tablets)",
+    "price": 28,
+    "category": "Digestion and acidity",
+    "otc": true,
+    "machineStock": 20
+  },
+  {
+    "id": 14,
+    "name": "Medicated Cough Lozenges (Sore Throat & Cough - 8 Lozenges)",
+    "price": 35,
+    "category": "Cold and cough",
+    "otc": true,
+    "machineStock": 25
+  },
+  {
+    "id": 15,
+    "name": "Isotonic Saline Nasal Spray 20ml (Nasal Decongestant)",
+    "price": 70,
+    "category": "Cold and cough",
+    "otc": true,
+    "machineStock": 12
+  },
+  {
+    "id": 16,
+    "name": "Soothing Calamine Lotion 100ml (Itch, Sunburn & Rash Relief)",
+    "price": 85,
+    "category": "Skin care",
+    "otc": true,
+    "machineStock": 10
+  },
+  {
+    "id": 17,
+    "name": "Clotrimazole 1% Antifungal Topical Cream 15g",
+    "price": 50,
+    "category": "Skin care",
+    "otc": true,
+    "machineStock": 12
+  },
+  {
+    "id": 18,
+    "name": "Povidone-Iodine 5% Antiseptic Ointment 15g (Minor Cuts & Burns)",
+    "price": 58,
+    "category": "First aid",
+    "otc": true,
+    "machineStock": 14
+  },
+  {
+    "id": 19,
+    "name": "Carboxymethylcellulose 0.5% Lubricating Eye Drops 10ml",
+    "price": 120,
+    "category": "Eye and ear care",
+    "otc": true,
+    "machineStock": 10
+  },
+  {
+    "id": 20,
+    "name": "Mouth Ulcer Relief Gel 10g (Choline Salicylate & Lignocaine)",
+    "price": 68,
+    "category": "Oral and dental care",
+    "otc": true,
+    "machineStock": 12
+  }
+]
